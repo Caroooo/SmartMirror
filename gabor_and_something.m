@@ -9,7 +9,9 @@ faceDetector = vision.CascadeObjectDetector();
 % Read a video frame and run the detector.
 videoFrame      = im;
 bbox            = step(faceDetector, videoFrame);
-
+if isempty(bbox) || size(bbox, 1) ~= 1
+        fprintf('\nToo many detected faces !\n')
+else
 % % Draw the returned bounding box around the detected face.
 videoOut = insertObjectAnnotation(videoFrame,'rectangle',bbox,'Face');
 figure, imshow(videoOut), title('Detected face');
@@ -22,15 +24,6 @@ wavelength = [2 2*sqrt(2) 4 4*sqrt(2) 8];
 orientation = [0 pi/8 pi/4 3*pi/8 pi/2 5*pi/8 3*pi/4 7*pi/8]*180/pi;
 
 g = gabor(wavelength,orientation); 
- 
-% figure;
-% for p = 1:length(g)
-%     figure,
-%     imshow(real(g(p).SpatialKernel),[]);
-%     f = g(p).Wavelength;
-%     theta  = g(p).Orientation;
-%     title(sprintf('Re[h(x,y)], \\f = %d, \\theta = %d',f,theta));
-% end
 
 DF = rgb2gray(detectedFace);
 [mag,phase] = imgaborfilt(DF,g);
@@ -38,4 +31,6 @@ DF = rgb2gray(detectedFace);
 for j = 1 : 40
     im = mag(:,:,j).*exp(-1i*phase(:,:,j));
     figure, imshow(real(im),[]);
+    % figure,imshow(mag(:,:,j),[]);
+end
 end
