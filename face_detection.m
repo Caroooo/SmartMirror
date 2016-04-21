@@ -1,4 +1,4 @@
-function image_to_show = face_detection(image)
+function imageToShow = face_detection(image)
 
 %setup
 CRITICAL_POINT_NUM = 10;
@@ -43,7 +43,7 @@ if isempty(bboxPoints)
     bboxPoints = 0;
 end
 
-my_poly = 0;
+myPoly = 0;
 videoFrame = image;
 videoFrameGray = rgb2gray(videoFrame);
 frameCount = frameCount + 1;
@@ -53,7 +53,7 @@ if numPts < CRITICAL_POINT_NUM
     [success, numPts, oldPoints, bboxPoints] = ...
         detect_face(videoFrameGray, faceDetector, pointTracker);
     if success
-        [videoFrame, my_poly] = draw_stuff(videoFrame, bboxPoints, oldPoints);
+        [videoFrame, myPoly] = draw_stuff(videoFrame, bboxPoints, oldPoints);
     end
 
 else
@@ -72,7 +72,7 @@ else
             oldPoints = toldPoints;
             bboxPoints = tbboxPoints;
 
-            [videoFrame, my_poly] = draw_stuff(videoFrame, bboxPoints, oldPoints);
+            [videoFrame, myPoly] = draw_stuff(videoFrame, bboxPoints, oldPoints);
         end
     end
 
@@ -87,7 +87,7 @@ else
             [bboxPoints, visiblePoints] = ...
                 find_transform(oldInliers, visiblePoints, bboxPoints);
 
-            [videoFrame, my_poly] = draw_stuff(videoFrame, bboxPoints, visiblePoints);
+            [videoFrame, myPoly] = draw_stuff(videoFrame, bboxPoints, visiblePoints);
 
             % Reset the points.
             oldPoints = visiblePoints;
@@ -96,11 +96,17 @@ else
     end
 end
 
-xses = double(my_poly(1:2:end));
-yses = double(my_poly(2:2:end));
-mask = poly2mask(xses, yses, size(videoFrame,1), size(videoFrame,2));
-% image_to_show = videoFrameGray .* uint8(mask);
-image_to_show(:,:,1) = videoFrame(:,:,1) .* uint8(mask);
-image_to_show(:,:,2) = videoFrame(:,:,2) .* uint8(mask);
-image_to_show(:,:,3) = videoFrame(:,:,3) .* uint8(mask);
-imshow(image_to_show,[]);
+
+if myPoly ~= 0
+    % If a face is found, pass it 
+    xses = double(myPoly(1:2:end));
+    yses = double(myPoly(2:2:end));
+    
+    imageToShow = extract_poly(videoFrame, xses, yses);
+%     imageToShow = videoFrame;
+else
+    % If not, pass a black image
+    videoFrame(:,:,:) = 0;
+    imageToShow = videoFrame;
+end
+

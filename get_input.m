@@ -13,7 +13,8 @@ if isempty(frames)
 end
 
 imageRGB = snapshot(cam);
-input = imageRGB;
+
+input = fliplr(imageRGB);
 frames = frames + 1;
 fprintf('FPS = %f\n', 1/toc);
 tic;
