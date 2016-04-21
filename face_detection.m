@@ -96,8 +96,11 @@ else
     end
 end
 
-xses = double(my_poly(1:2:end))
-yses = double(my_poly(2:2:end))
+xses = double(my_poly(1:2:end));
+yses = double(my_poly(2:2:end));
 mask = poly2mask(xses, yses, size(videoFrame,1), size(videoFrame,2));
-image_to_show = videoFrameGray .* uint8(mask);
+% image_to_show = videoFrameGray .* uint8(mask);
+image_to_show(:,:,1) = videoFrame(:,:,1) .* uint8(mask);
+image_to_show(:,:,2) = videoFrame(:,:,2) .* uint8(mask);
+image_to_show(:,:,3) = videoFrame(:,:,3) .* uint8(mask);
 imshow(image_to_show,[]);
