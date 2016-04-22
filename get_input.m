@@ -6,15 +6,18 @@ if isempty(cam)
     cam = webcam;
 end
 
-persistent frames;
+% persistent frames;
+% 
+% if isempty(frames)
+%     frames = 0;
+% end
+% frames = frames + 1;
 
-if isempty(frames)
-    frames = 0;
-end
 
+
+% Get image from camera
 imageRGB = snapshot(cam);
 
+% Mirror the image so it works like a... Mirror
 input = fliplr(imageRGB);
-frames = frames + 1;
-fprintf('FPS = %f\n', 1/toc);
-tic;
+

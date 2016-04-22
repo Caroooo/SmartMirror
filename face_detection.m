@@ -106,7 +106,6 @@ if myPoly ~= 0
 %     imageToShow = videoFrame;
 else
     % If not, pass a black image
-    videoFrame(:,:,:) = 0;
-    imageToShow = videoFrame;
+    imageToShow = [];
 end
 

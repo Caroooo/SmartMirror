@@ -1,12 +1,5 @@
 function extracted_image = extract_poly(image, polyXArray, polyYArray)
 
-mask = poly2mask(polyXArray, polyYArray, size(image,1), size(image,2));
-
-
-filtered(:,:,1) = image(:,:,1) .* uint8(mask);
-filtered(:,:,2) = image(:,:,2) .* uint8(mask);
-filtered(:,:,3) = image(:,:,3) .* uint8(mask);
-
 maxX = max(polyXArray);
 maxY = max(polyYArray);
 minX = min(polyXArray);
@@ -21,15 +14,6 @@ cropped = imcrop(image, [minX, minY, w, h]);
 x = polyXArray;
 y = polyYArray;
 
-
-[unused, minind] = sort(x);
-[unused, maxind] = max(y(minind(1:2)));
-
-lowLeftCornerInd = minind(maxind);
-lowRightCornerInd = mod(lowLeftCornerInd -2, 4) + 1;
-
-
-fprintf('%d   ', lowRightCornerInd);
 
 x_diff = x(4) - x(3);
 y_diff = y(4) - y(3);
