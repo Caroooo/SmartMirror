@@ -40,5 +40,13 @@ if y(2) > y(3)
     angle = angle + 180;
 end
 
-fprintf('xdiff = %.1f, ydiff = %.1f, angle = %.2f\n', x_diff, y_diff, angle);
+% fprintf('xdiff = %.1f, ydiff = %.1f, angle = %.2f\n', x_diff, y_diff, angle);
+
 extracted_image = imrotate(cropped,angle);
+
+alpha = atan(abs((y(2) - y(1)))/abs((x(2) - x(1))));
+offset = cos(alpha) * abs(x(1) - x(4));
+side = sqrt((y(2) - y(1))^2 + (x(2) - x(1))^2);
+% extracted_image = insertMarker(extracted_image, [offset offset], 'circle');
+
+extracted_image = imcrop(extracted_image, [offset offset side side]);
