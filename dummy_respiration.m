@@ -1,4 +1,4 @@
-function dummy_respiration(frames)
+function rr = dummy_respiration(frames)
 
 persistent videos;
 if isempty(videos)
@@ -19,3 +19,5 @@ counter = counter + 1;
 %         play_video(videos{1,i});
 %     end
 % end
+
+rr = 15;

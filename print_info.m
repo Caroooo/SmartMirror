@@ -1,7 +1,7 @@
-function print_info(person_name, hb, bps, bpd, rr, fps)
-clc
-fprintf('Person: %20s\n', person_name); 
-fprintf('Heartbeat: %3s bps\n', num2str(hb));
-fprintf('Blood Pressure: %3s /%3s mmHg\n', num2str(bps), num2str(bpd));
-fprintf('Respiration Rate: %3s rcpm\n', num2str(rr));
+function print_info(person_name, hb, bp, rr, fps)
+fprintf('*****************************\n');
+fprintf('Person: %s\n', person_name); 
+fprintf('Heartbeat: %s\n', hb);
+fprintf('Blood Pressure: %s\n', bp);
+fprintf('Respiration Rate: %s\n', rr);
 fprintf('Frame Rate: %2.2f fps\n', fps);

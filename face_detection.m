@@ -1,9 +1,11 @@
-function imageToShow = face_detection(image)
+function face = face_detection(image)
 
 %setup
 CRITICAL_POINT_NUM = 10;
 SOFT_POINT_NUM = 60;
 RECHECK_RATE = 30;
+RESCALE_SIZE = 300;
+RESCALE_METHOD = 'bilinear';
 
 % Create the face detector object.
 persistent faceDetector;
@@ -102,10 +104,12 @@ if myPoly ~= 0
     xses = double(myPoly(1:2:end));
     yses = double(myPoly(2:2:end));
     
-    imageToShow = extract_poly(videoFrame, xses, yses);
+    cropped_face = extract_poly(videoFrame, xses, yses);
+    face = imresize(cropped_face,...
+                    [RESCALE_SIZE RESCALE_SIZE],RESCALE_METHOD);
 %     imageToShow = videoFrame;
 else
     % If not, pass a black image
-    imageToShow = [];
+    face = [];
 end
 
