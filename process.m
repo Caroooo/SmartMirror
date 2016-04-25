@@ -123,7 +123,7 @@ elseif state == FACE_DETECTED
 
             % Call Respiration Rate
             if current_time - detection_time >= RESPIRATION_RATE_WINDOW + 2
-                start_index = find(extractfield(tmp, 'time') <= ...
+                start_index = find(my_extractfield(tmp, 'time') <= ...
                                current_time - RESPIRATION_RATE_WINDOW, 1, 'last');                   
                 rr = dummy_respiration(tmp(start_index:end));
                 results.rr = strcat(num2str(rr), ' rcpm');
@@ -131,7 +131,7 @@ elseif state == FACE_DETECTED
 
             % Call Heartbeat
             if current_time - detection_time >= HEARTBEAT_WINDOW + 2
-                start_index = find(extractfield(tmp, 'time') <= ...
+                start_index = find(my_extractfield(tmp, 'time') <= ...
                                    current_time - HEARTBEAT_WINDOW, 1, 'last');                   
                 hb =  dummy_hb(tmp(start_index:end));
                 results.hb = strcat(num2str(hb), ' bpm');
@@ -139,7 +139,7 @@ elseif state == FACE_DETECTED
 
             % Call Blood Pressure
             if current_time - detection_time >= BLOOD_PRESSURE_WINDOW + 2
-                start_index = find(extractfield(tmp, 'time') <= ...
+                start_index = find(my_extractfield(tmp, 'time') <= ...
                               current_time - BLOOD_PRESSURE_WINDOW, 1, 'last');                   
                 [bps, bpd] = dummy_bp(tmp(start_index:end));
                 results.bp = strcat(num2str(bps), '/', num2str(bpd), ' mmHg');
