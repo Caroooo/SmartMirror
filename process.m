@@ -1,7 +1,7 @@
 function results = process(input)
 
 global NO_DETECTION NO_REFRESH REFRESH;
-
+global start_time;
 % States for this function
 NO_FACE = 0;
 FACE_DETECTED = 1;
@@ -30,7 +30,7 @@ end
 
 persistent last_refresh;
 if isempty(last_refresh)
-    last_refresh = toc;
+    last_refresh = etime(clock, start_time);
 end
 
 persistent state;
@@ -45,12 +45,13 @@ end
 
 persistent detection_time;
 if isempty(detection_time)
-    detection_time = toc;
+    detection_time = etime(clock, start_time);
 end
 
 % The input is image from camera
 image = input;
 face = face_detection(image);
+current_time = -1;
 
 if state == NO_FACE
      
@@ -77,11 +78,11 @@ if state == NO_FACE
         % Set time of detection. This is used later to know
         % if sufficient time has passed for each parameter to try 
         % measuring it
-        detection_time = toc;
+        detection_time = etime(clock, start_time);
         
         % Reset last refresh so the refresh period will begin
         % counting from zero
-        last_refresh = toc;
+        last_refresh = etime(clock, start_time);
     end
 
 elseif state == FACE_DETECTED
@@ -111,7 +112,7 @@ elseif state == FACE_DETECTED
 
         % If the time is right, call modules
         % Generally speaking, this is every REFRESH_PERIOD seconds
-        current_time = toc;
+        current_time = etime(clock, start_time);
 
         if (current_time - last_refresh >= REFRESH_PERIOD)
 
@@ -144,7 +145,7 @@ elseif state == FACE_DETECTED
                 results.bp = strcat(num2str(bps), '/', num2str(bpd), ' mmHg');
             end
 
-            last_refresh = toc;
+            last_refresh = etime(clock, start_time);
             results.state = REFRESH;
         else
             results.state = NO_REFRESH;
@@ -153,5 +154,5 @@ elseif state == FACE_DETECTED
         next_state = FACE_DETECTED;
     end
 end
-% fprintf('state = %d next_state = %d res.state = %d\n', state, next_state, results.state);
+% fprintf('state = %d next_state = %d res.state = %d, ct = %2.2f, dt = %2.2f\n', state, next_state, results.state, current_time, detection_time);
 state = next_state;

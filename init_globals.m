@@ -6,3 +6,6 @@ NO_DETECTION = 0;
 NO_REFRESH = 1;
 REFRESH = 2;
 SYSTEM_START = 3;
+
+global start_time;
+start_time = clock;

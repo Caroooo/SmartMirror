@@ -4,7 +4,6 @@ close all;
 clear all;
 
 init_globals();
-tic
 
 while true
     image = get_input();

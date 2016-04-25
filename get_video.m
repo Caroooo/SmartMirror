@@ -10,12 +10,12 @@ video = zeros(dims(1), dims(2), dims(3), MAX_FPS*duration);
 video = uint8(video);
 
 % Start stopwatch
-tic
+start_time = clock;
 
 i = 1;
 
 % Record video
-while toc < duration
+while etime(clock, start_time) < duration
     im = snapshot(cam);
     video(:,:,:,i) = im;
     i = i + 1;

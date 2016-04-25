@@ -1,6 +1,6 @@
 function face = face_detection(image)
 
-%setup
+% Setup
 CRITICAL_POINT_NUM = 10;
 SOFT_POINT_NUM = 60;
 RECHECK_RATE = 30;
@@ -9,38 +9,32 @@ RESCALE_METHOD = 'bilinear';
 
 % Create the face detector object.
 persistent faceDetector;
-
 if isempty(faceDetector)
     faceDetector = vision.CascadeObjectDetector();
 end
 
 % Create the point tracker object.
 persistent pointTracker;
-
 if isempty(pointTracker)
     pointTracker = vision.PointTracker('MaxBidirectionalError', 2);
 end
 
 persistent numPts;
-
 if isempty(numPts)
     numPts = 0;
 end
 
 persistent frameCount;
-
 if isempty(frameCount)
     frameCount = 0;
 end
 
 persistent oldPoints;
-
 if isempty(oldPoints)
     oldPoints = 0;
 end
 
 persistent bboxPoints;
-
 if isempty(bboxPoints)
     bboxPoints = 0;
 end

@@ -1,6 +1,7 @@
 function do_output(results)
 
 global NO_DETECTION NO_REFRESH REFRESH SYSTEM_START;
+global start_time;
 
 % SHOW_AS_VIDEO = false;
 % SHOW_AS_IMAGE = false;
@@ -11,7 +12,7 @@ global cam;
 
 persistent lastToc;
 if isempty(lastToc)
-    lastToc = toc;
+    lastToc = etime(clock, start_time);
 end
 
 persistent lastState;
@@ -34,7 +35,7 @@ end
 % end
 
 % Handle FPS calculations and display
-currentToc = toc;
+currentToc = etime(clock, start_time);
 period = currentToc - lastToc;
 fps = 1/period;
 lastToc = currentToc;
