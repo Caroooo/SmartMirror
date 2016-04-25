@@ -44,8 +44,10 @@ videoFrame = image;
 videoFrameGray = rgb2gray(videoFrame);
 frameCount = frameCount + 1;
 
-% If not enough points, detect face again
+
 if numPts < CRITICAL_POINT_NUM
+    % If not enough points, detect face again
+    
     [success, numPts, oldPoints, bboxPoints] = ...
         detect_face(videoFrameGray, faceDetector, pointTracker);
     if success
@@ -53,14 +55,16 @@ if numPts < CRITICAL_POINT_NUM
     end
 
 else
+    % If there are enough points, usually try just tracking
     do_tracking = 1;
 
-    % Maybe check detection again
+    % Maybe check detection again if number of points
+    % dropped below some soft cap
     if (mod(frameCount, RECHECK_RATE) == 0)&&(numPts < SOFT_POINT_NUM)
         [success, tnumPts, toldPoints, tbboxPoints] = ...
             detect_face(videoFrameGray, faceDetector, pointTracker);
 
-        % If detection is good, reset tracking
+        % If new detection is good, reset tracking
         if success && tnumPts > numPts
             do_tracking = 0;
 
@@ -98,10 +102,12 @@ if myPoly ~= 0
     xses = double(myPoly(1:2:end));
     yses = double(myPoly(2:2:end));
     
+    % Crop and rotate image
     cropped_face = extract_poly(videoFrame, xses, yses);
+    
+    % Resize so it is always the same size
     face = imresize(cropped_face,...
                     [RESCALE_SIZE RESCALE_SIZE],RESCALE_METHOD);
-%     imageToShow = videoFrame;
 else
     % If not, pass a black image
     face = [];

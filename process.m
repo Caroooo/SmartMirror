@@ -1,23 +1,30 @@
 function results = process(input)
 
+% States for signaling do_output function
 global NO_DETECTION NO_REFRESH REFRESH;
+
+% When did the system start working
 global start_time;
+
 % States for this function
 NO_FACE = 0;
 FACE_DETECTED = 1;
 
+% Configuration
 BUFFER_SIZE = 400;
 REFRESH_PERIOD  = 2;
 RESPIRATION_RATE_WINDOW = 8;
 HEARTBEAT_WINDOW = 6;
 BLOOD_PRESSURE_WINDOW = 10;
 
+% Default data for do_output
 results.person_name = 'No Face Detected';
 results.hb = '-';
 results.bp = '-';
 results.rr = '-';
 results.state = '';
 
+% Circular buffer for recording frames
 persistent buffer;
 if isempty(buffer)
    buffer = struct('image', {}, 'time', {});
@@ -50,19 +57,21 @@ end
 
 % The input is image from camera
 image = input;
-face = face_detection(image);
-current_time = -1;
 
+% Try to detect or track face
+face = face_detection(image);
+
+% State machine with two states: NO_FACE and FACE_DETECTED
 if state == NO_FACE
      
-    % If no face is detected, abort everything
-    if isempty(face)        
+    if isempty(face) 
+        % If no face is detected, abort everything
+        
         results.state = NO_DETECTION;
         next_state = NO_FACE;
-        counter = 1;
-        
-    % If a face is detected, recognize it and start measuring
+        counter = 1;  
     else
+        % If a face is detected, recognize it and start measuring
         
         % DUMMY FACE RECOGNITION, add real one later
         person_name = 'Darth Vader';
@@ -87,20 +96,22 @@ if state == NO_FACE
 
 elseif state == FACE_DETECTED
     
-    % If no face is detected, abort everything
-    if isempty(face)        
+    if isempty(face)    
+        % If no face is detected, abort and reset everything
+        
         results.state = NO_DETECTION;
         next_state = NO_FACE;
         results.state = NO_REFRESH;
         counter = 1;
     else
+        % If the face is successfully tracked, add it to the buffer
         
         results.person_name = person_name;
         results.hb = 'Measuring...';
         results.bp = 'Measuring...';
         results.rr = 'Measuring...';
         
-        % Create a new struct with image and time
+        % Create a new struct with image and time label
         frame = create_frame_object(face);
 
         % Add new object to circular buffer
@@ -118,7 +129,9 @@ elseif state == FACE_DETECTED
 
             % **********Call modules***************
 
-            % Straighten the circular buffer so it is not circular anymore
+            % Straighten the circular buffer so it is not circular anymore.
+            % Technically this is not needed and should be removed
+            % at some point to optimize a bit.
             tmp = [buffer(counter:end) buffer(1:counter-1)];
 
             % Call Respiration Rate
@@ -126,6 +139,7 @@ elseif state == FACE_DETECTED
                 start_index = find(my_extractfield(tmp, 'time') <= ...
                                current_time - RESPIRATION_RATE_WINDOW, 1, 'last');                   
                 rr = dummy_respiration(tmp(start_index:end));
+                % Here we can call Shankar's functions for logging
                 results.rr = strcat(num2str(rr), ' rcpm');
             end
 
@@ -146,13 +160,21 @@ elseif state == FACE_DETECTED
             end
 
             last_refresh = etime(clock, start_time);
+            
+            % Since it is refresh period, signal do_output that it
+            % should refresh the output as well            
             results.state = REFRESH;
         else
+            % If it is not refresh period, signal do_output that
+            % nothing has to be changed
             results.state = NO_REFRESH;
         end
                 
         next_state = FACE_DETECTED;
     end
 end
-% fprintf('state = %d next_state = %d res.state = %d, ct = %2.2f, dt = %2.2f\n', state, next_state, results.state, current_time, detection_time);
+
+% fprintf('state = %d next_state = %d res.state = %d,\n',...
+%         state, next_state, results.state);
+
 state = next_state;
