@@ -5,7 +5,7 @@ function [videoFrame, bboxPolygon] = draw_stuff(videoFrame, bboxPoints, pointsTo
 bboxPolygon = reshape(bboxPoints', 1, []);
 
 % Display a bounding box around the face being tracked.
-% videoFrame = insertShape(videoFrame, 'Polygon', bboxPolygon, 'LineWidth', 3);
+%videoFrame = insertShape(videoFrame, 'Polygon', bboxPolygon, 'LineWidth', 3);
 
 % Display tracked points.
 % videoFrame = insertMarker(videoFrame, pointsToDraw, '*', 'Color', 'white');

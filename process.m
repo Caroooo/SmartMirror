@@ -11,7 +11,6 @@ NO_FACE = 0;
 FACE_DETECTED = 1;
 
 % Configuration
-BUFFER_SIZE = 400;
 REFRESH_PERIOD  = 2;
 RESPIRATION_RATE_WINDOW = 8;
 HEARTBEAT_WINDOW = 6;
@@ -24,15 +23,16 @@ results.bp = '-';
 results.rr = '-';
 results.state = '';
 
-% Circular buffer for recording frames
-persistent buffer;
-if isempty(buffer)
-   buffer = struct('image', {}, 'time', {});
+% Circular buffer for recording faces
+persistent bufferFaces;
+if isempty(bufferFaces)
+   bufferFaces = Buffer;
 end
 
-persistent counter;
-if isempty(counter)
-    counter = 1;
+% Circular buffer for recording eyes
+persistent bufferEyes;
+if isempty(bufferEyes)
+    bufferEyes = Buffer;
 end
 
 persistent last_refresh;
@@ -69,7 +69,6 @@ if state == NO_FACE
         
         results.state = NO_DETECTION;
         next_state = NO_FACE;
-        counter = 1;  
     else
         % If a face is detected, recognize it and start measuring
         
@@ -101,61 +100,48 @@ elseif state == FACE_DETECTED
         
         results.state = NO_DETECTION;
         next_state = NO_FACE;
-        results.state = NO_REFRESH;
-        counter = 1;
+        bufferFaces.reset();
+        bufferEyes.reset();
     else
-        % If the face is successfully tracked, add it to the buffer
+        % Eyes detection
+        
         
         results.person_name = person_name;
         results.hb = 'Measuring...';
         results.bp = 'Measuring...';
         results.rr = 'Measuring...';
         
-        % Create a new struct with image and time label
-        frame = create_frame_object(face);
-
-        % Add new object to circular buffer
-        buffer(counter) = frame;
-        counter = counter + 1;
-        if counter == BUFFER_SIZE + 1
-            counter = 1;
-        end
-
         % If the time is right, call modules
         % Generally speaking, this is every REFRESH_PERIOD seconds
         current_time = etime(clock, start_time);
+        
+        % Add new face to buffer
+        bufferFaces.add_frame(face, current_time);
+        
+        
 
         if (current_time - last_refresh >= REFRESH_PERIOD)
 
             % **********Call modules***************
-
-            % Straighten the circular buffer so it is not circular anymore.
-            % Technically this is not needed and should be removed
-            % at some point to optimize a bit.
-            tmp = [buffer(counter:end) buffer(1:counter-1)];
-
             % Call Respiration Rate
             if current_time - detection_time >= RESPIRATION_RATE_WINDOW + 2
-                start_index = find(my_extractfield(tmp, 'time') <= ...
-                               current_time - RESPIRATION_RATE_WINDOW, 1, 'last');                   
-                rr = dummy_respiration(tmp(start_index:end));
+                rr = dummy_respiration(bufferFaces.get_last_seconds...
+                                    (current_time, RESPIRATION_RATE_WINDOW));
                 % Here we can call Shankar's functions for logging
                 results.rr = strcat(num2str(rr), ' rcpm');
             end
 
             % Call Heartbeat
-            if current_time - detection_time >= HEARTBEAT_WINDOW + 2
-                start_index = find(my_extractfield(tmp, 'time') <= ...
-                                   current_time - HEARTBEAT_WINDOW, 1, 'last');                   
-                hb =  dummy_hb(tmp(start_index:end));
+            if current_time - detection_time >= HEARTBEAT_WINDOW + 2                  
+                hb =  dummy_hb(bufferFaces.get_last_seconds...
+                                    (current_time, HEARTBEAT_WINDOW));
                 results.hb = strcat(num2str(hb), ' bpm');
             end
 
             % Call Blood Pressure
-            if current_time - detection_time >= BLOOD_PRESSURE_WINDOW + 2
-                start_index = find(my_extractfield(tmp, 'time') <= ...
-                              current_time - BLOOD_PRESSURE_WINDOW, 1, 'last');                   
-                [bps, bpd] = dummy_bp(tmp(start_index:end));
+            if current_time - detection_time >= BLOOD_PRESSURE_WINDOW + 2                  
+                [bps, bpd] = dummy_bp(bufferFaces.get_last_seconds...
+                                    (current_time, BLOOD_PRESSURE_WINDOW));
                 results.bp = strcat(num2str(bps), '/', num2str(bpd), ' mmHg');
             end
 
