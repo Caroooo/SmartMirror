@@ -49,7 +49,7 @@ if numPts < CRITICAL_POINT_NUM
     % If not enough points, detect face again
     
     [success, numPts, oldPoints, bboxPoints] = ...
-        detect_face(videoFrameGray, faceDetector, pointTracker);
+        detect(videoFrameGray, faceDetector, pointTracker);
     if success
         [videoFrame, myPoly] = draw_stuff(videoFrame, bboxPoints, oldPoints);
     end
@@ -62,7 +62,7 @@ else
     % dropped below some soft cap
     if (mod(frameCount, RECHECK_RATE) == 0)&&(numPts < SOFT_POINT_NUM)
         [success, tnumPts, toldPoints, tbboxPoints] = ...
-            detect_face(videoFrameGray, faceDetector, pointTracker);
+            detect(videoFrameGray, faceDetector, pointTracker);
 
         % If new detection is good, reset tracking
         if success && tnumPts > numPts
@@ -79,7 +79,7 @@ else
     if do_tracking == 1
         % Track the face
         [visiblePoints, oldInliers, numPts] = ...
-            track_face(pointTracker,videoFrameGray, oldPoints);
+            track_object(pointTracker,videoFrameGray, oldPoints);
 
         % If track successful, calculate/draw things
         if numPts >= 10
@@ -103,7 +103,7 @@ if myPoly ~= 0
     yses = double(myPoly(2:2:end));
     
     % Crop and rotate image
-    cropped_face = extract_poly(videoFrame, xses, yses);
+    cropped_face = extract_poly(videoFrame, xses, yses, true);
     
     % Resize so it is always the same size
     face = imresize(cropped_face,...
