@@ -11,10 +11,10 @@ NO_FACE = 0;
 FACE_DETECTED = 1;
 
 % Configuration
-REFRESH_PERIOD  = 2;
+REFRESH_PERIOD  = 20;
 RESPIRATION_RATE_WINDOW = 8;
 HEARTBEAT_WINDOW = 6;
-BLOOD_PRESSURE_WINDOW = 10;
+BLOOD_PRESSURE_WINDOW = 20;
 
 % Default data for do_output
 results.person_name = 'No Face Detected';
@@ -24,15 +24,21 @@ results.rr = '-';
 results.state = '';
 
 % Circular buffer for recording faces
-persistent bufferFaces;
-if isempty(bufferFaces)
-   bufferFaces = Buffer;
+persistent bufferFace;
+if isempty(bufferFace)
+   bufferFace = Buffer;
 end
 
 % Circular buffer for recording eyes
 persistent bufferEyes;
 if isempty(bufferEyes)
     bufferEyes = Buffer;
+end
+
+% Circular buffer for recording hand
+persistent bufferHand;
+if isempty(bufferHand)
+    bufferHand = Buffer;
 end
 
 persistent last_refresh;
@@ -55,18 +61,40 @@ if isempty(detection_time)
     detection_time = etime(clock, start_time);
 end
 
-% The input is image from camera
-image = input;
+% Create the hunters object.
+persistent faceHunter ;
+if isempty(faceHunter)
+    faceHunter = Hunter('FrontalFaceCART', 300, 300, true);
+end
 
-% Try to detect or track face
-face = face_detection(image);
+persistent eyesHunter ;
+if isempty(eyesHunter)
+    eyesHunter = Hunter('eyePairBig',40, 200, false);
+end
+
+persistent handHunter ; 
+if isempty(handHunter)
+    handHunter = Hunter('hands_final.xml', 200, 200 , true);
+end
+
+persistent eyes_found;
+if isempty(eyes_found)
+    eyes_found = false;
+end
+
+persistent hand_found;
+if isempty(hand_found)
+    hand_found = false;
+end
+
+% Detect and track face
+face = faceHunter.hunt(input);
 
 % State machine with two states: NO_FACE and FACE_DETECTED
 if state == NO_FACE
      
     if isempty(face) 
         % If no face is detected, abort everything
-        
         results.state = NO_DETECTION;
         next_state = NO_FACE;
     else
@@ -75,6 +103,14 @@ if state == NO_FACE
         % DUMMY FACE RECOGNITION, add real one later
         person_name = 'Darth Vader';
         results.person_name = person_name;
+        
+        % Detect and track eyes and hand
+        hand = handHunter.hunt(input);       
+        eyes = eyesHunter.hunt(face);
+        
+        % If eyes/hand are found, set corresponding variables
+        hand_found = ~isempty(hand);
+        eyes_found = ~isempty(eyes);
         
         % It shold be clear that other parameters are being measured
         results.hb = 'Measuring...';
@@ -100,12 +136,11 @@ elseif state == FACE_DETECTED
         
         results.state = NO_DETECTION;
         next_state = NO_FACE;
-        bufferFaces.reset();
+        bufferFace.reset();
         bufferEyes.reset();
-    else
-        % Eyes detection
-        
-        
+        bufferHand.reset();
+    else   
+       
         results.person_name = person_name;
         results.hb = 'Measuring...';
         results.bp = 'Measuring...';
@@ -116,35 +151,69 @@ elseif state == FACE_DETECTED
         current_time = etime(clock, start_time);
         
         % Add new face to buffer
-        bufferFaces.add_frame(face, current_time);
+        bufferFace.add_frame(face, current_time);
         
-        
-
+        % Eyes detection
+        eyes = eyesHunter.hunt(face); 
+        if eyes_found  
+            if isempty(eyes)
+                eyes_found = false;
+                bufferEyes.reset();
+            else
+                bufferEyes.add_frame(eyes, current_time);
+            end
+        else
+            if ~isempty(eyes)
+                eyes_found = true;
+            end
+        end
+            
+                
+        % Hand detection
+        hand = handHunter.hunt(input); 
+        if hand_found  
+            if isempty(hand)
+                hand_found = false;
+                bufferHand.reset();
+            else
+                bufferHand.add_frame(hand, current_time);
+            end
+        else
+            if ~isempty(hand)
+                hand_found = true;
+            end
+        end                
+                
         if (current_time - last_refresh >= REFRESH_PERIOD)
 
             % **********Call modules***************
             % Call Respiration Rate
-            if current_time - detection_time >= RESPIRATION_RATE_WINDOW + 2
-                rr = dummy_respiration(bufferFaces.get_last_seconds...
-                                    (current_time, RESPIRATION_RATE_WINDOW));
+            if bufferFace.get_record_duration() >= RESPIRATION_RATE_WINDOW + 2
+                rr = dummy_respiration(bufferFace.get_last_seconds...
+                                    (RESPIRATION_RATE_WINDOW));
                 % Here we can call Shankar's functions for logging
                 results.rr = strcat(num2str(rr), ' rcpm');
             end
 
             % Call Heartbeat
-            if current_time - detection_time >= HEARTBEAT_WINDOW + 2                  
-                hb =  dummy_hb(bufferFaces.get_last_seconds...
-                                    (current_time, HEARTBEAT_WINDOW));
+            if bufferFace.get_record_duration() >= HEARTBEAT_WINDOW + 2                  
+                hb =  dummy_hb(bufferFace.get_last_seconds...
+                                    (HEARTBEAT_WINDOW));
                 results.hb = strcat(num2str(hb), ' bpm');
             end
-
-            % Call Blood Pressure
-            if current_time - detection_time >= BLOOD_PRESSURE_WINDOW + 2                  
-                [bps, bpd] = dummy_bp(bufferFaces.get_last_seconds...
-                                    (current_time, BLOOD_PRESSURE_WINDOW));
-                results.bp = strcat(num2str(bps), '/', num2str(bpd), ' mmHg');
+            
+            if ~hand_found
+                results.bp = ('HAND NOT FOUND!');
+            else
+                % Call Blood Pressure
+                if bufferHand.get_record_duration() >= BLOOD_PRESSURE_WINDOW + 2  
+                    [faces, times] = bufferFace.get_last_seconds(BLOOD_PRESSURE_WINDOW);
+                    [bps, bpd] = dummy_bp(faces,...
+                                          bufferHand.get_last_seconds(BLOOD_PRESSURE_WINDOW),...
+                                          times);
+                    results.bp = strcat(num2str(bps), '/', num2str(bpd), ' mmHg');
+                end
             end
-
             last_refresh = etime(clock, start_time);
             
             % Since it is refresh period, signal do_output that it
@@ -162,5 +231,5 @@ end
 
 % fprintf('state = %d next_state = %d res.state = %d,\n',...
 %         state, next_state, results.state);
-
+fprintf('%d\n', bufferFace.first_empty);
 state = next_state;
