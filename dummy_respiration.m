@@ -1,4 +1,4 @@
-function rr = dummy_respiration(images, timeStamps)
+function rr = dummy_respiration(frames, timeStamps)
 
 persistent videos;
 if isempty(videos)
@@ -75,7 +75,7 @@ desiredSampling = 256;
 % plot(abs(fftResult), 'r');
 
 % Lomb periodogram PSD
-[pxx,f] = plomb(hummingChannel,Tx);
+[pxx, f] = plomb(hummingChannel,Tx);
 % figure, plot(f, pxx, 'b');
 
 rr = 15;
