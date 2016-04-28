@@ -12,7 +12,7 @@ FACE_DETECTED = 1;
 
 % Configuration
 REFRESH_PERIOD  = 20;
-RESPIRATION_RATE_WINDOW = 8;
+RESPIRATION_RATE_WINDOW = 60;
 HEARTBEAT_WINDOW = 6;
 BLOOD_PRESSURE_WINDOW = 20;
 
@@ -189,8 +189,8 @@ elseif state == FACE_DETECTED
             % **********Call modules***************
             % Call Respiration Rate
             if bufferFace.get_record_duration() >= RESPIRATION_RATE_WINDOW + 2
-                rr = dummy_respiration(bufferFace.get_last_seconds...
-                                    (RESPIRATION_RATE_WINDOW));
+                [faces, times] = bufferFace.get_last_seconds(RESPIRATION_RATE_WINDOW);
+                rr = dummy_respiration(faces, times);
                 % Here we can call Shankar's functions for logging
                 results.rr = strcat(num2str(rr), ' rcpm');
             end
@@ -231,5 +231,5 @@ end
 
 % fprintf('state = %d next_state = %d res.state = %d,\n',...
 %         state, next_state, results.state);
-fprintf('%d\n', bufferFace.first_empty);
+% fprintf('%d\n', bufferFace.first_empty);
 state = next_state;
