@@ -1,4 +1,5 @@
 function rr = dummy_respiration(frames, timeStamps)
+
 persistent videos;
 if isempty(videos)
     videos = {};
@@ -9,9 +10,10 @@ if isempty(counter)
     counter = 1;
 end
 
+%video = cat(4, frames.image);
+%videos{counter} = video;
+%counter = counter + 1;
 video = frames;
-videos{counter} = video;
-counter = counter + 1;
 timeStampsSize = size(timeStamps, 2);
 totalTime = timeStamps(timeStampsSize) - timeStamps(1);
 
@@ -70,5 +72,4 @@ f = f(startSample:endSample);
 pxx = pxx(startSample:endSample);
 [value, index] = max(pxx);
 [row, column] = ind2sub(size(pxx), index);
-
 rr = f(row, column)*60;

@@ -1,7 +1,10 @@
 clear all;
 close all;
 
-video = VideoReader('mihi-heavy-breathing.avi');
-% frames = importdata('shankar.4d');
+video = VideoReader('mihaela-30-sec.avi');
+%frames = importdata('vukan.4d');
 frames = video.read();
-dummy_respiration(frames);
+sizeFrame = size(frames, 4);
+time = sizeFrame/30;
+timeStamps = 1:(1/30):(time + 1); 
+dummy_respiration_for_video(frames, timeStamps(1:sizeFrame))
