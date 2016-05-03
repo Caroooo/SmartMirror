@@ -251,7 +251,7 @@ if 0, 	%% Init by diagonalizing a *single* cumulant matrix.  It seems to save
 	end;
 	CM	= V'*CM;
 
-else,	%% The dont-try-to-be-smart init
+else	%% The dont-try-to-be-smart init
 	V	= eye(m) ; % la rotation initiale
 end;
 
