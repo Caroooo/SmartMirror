@@ -2,6 +2,7 @@ clear all;
 close all;
 
 video = VideoReader('mihaela-30-sec.avi');
+%video = VideoReader('forehead.mp4');
 %frames = importdata('vukan.4d');
 frames = video.read();
 sizeFrame = size(frames, 4);
