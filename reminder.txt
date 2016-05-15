@@ -1,0 +1,6 @@
+Shankar,1,0,0,Remember to take your vitamins
+Shankar,1,0,0,You have a Group Meeting at 12 pm at U1-64
+Shankar,2,6,0,This is a weekly reminder for Friday
+Shankar,2,5,0,This is a weekly reminder for Thursday
+Shankar,3,0,13,This a monthly reminder for the 13th day of the month
+Shankar,3,0,25,This is a monthly reminder for the 25th day of the month
