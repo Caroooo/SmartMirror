@@ -74,7 +74,8 @@ if option == '1'
             BBy2=BBPoints(1,2)+round(BB2*0.60);
             %
             BBROI(1,1)=BBPoints(1,1)+BBx1;
-            BBROI(1,2)=BBy2;
+            %BBROI(1,2)=BBy2;
+            BBROI(1,2)=BBPoints(1,2);
             BBROI(2,1)=BBROI(1,1)+BBx;
             BBROI(2,2)=BBROI(1,2);
             BBROI(3,1)=BBROI(2,1);
@@ -95,7 +96,8 @@ if option == '1'
             BBy=BBPoints(4,2)-BBy2;
             %
             BBROI(1,1)=BBPoints(1,1)+BBx1;
-            BBROI(1,2)=BBy2;
+            %BBROI(1,2)=BBy2;
+            BBROI(1,2)=BBPoints(1,2);
             BBROI(2,1)=BBROI(1,1)+BBx;
             BBROI(2,2)=BBROI(1,2);
             BBROI(3,1)=BBROI(2,1);

@@ -80,10 +80,12 @@ while true
         fprintf('%s',DT);
         fprintf('\n');
         fprintf('\t\t\t\t\t\t\t');
-        DT=['Avg Heart Rate Is ',num2str(round(mean(hr_display(hr_display~=0)))),' Beats Per Minute'];
+        % removing outliers from the mean
+        DT=['Avg Heart Rate Is ',num2str(round(mean(hr_display(round(hr_display)~=20)))),' Beats Per Minute'];
         fprintf('%s',DT);
         fprintf('\n');
         fprintf('\t\t\t\t\t\t\t');
+        % removing outliers from the mean
         DT=['Avg Respiration Rate Is ',num2str(round(mean(rr_display(rr_display~=0)))),' Breaths Per Minute'];
         fprintf('%s',DT);
         fprintf('\n');
@@ -100,7 +102,8 @@ while true
         fprintf('%s',DT);
         fprintf('\n');
         fprintf('\t\t\t\t\t\t\t');
-        DT=['Avg Inter-beat Interval Is ',num2str(round(mean(ibi_display(ibi_display~=0)))),' Milliseconds'];
+        % removing outliers from the mean
+        DT=['Avg Inter-beat Interval Is ',num2str(round(mean(ibi_display(ibi_display<2900)))),' Milliseconds'];
         fprintf('%s',DT);
         fprintf('\n\n');
         %
