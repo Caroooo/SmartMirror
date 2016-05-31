@@ -11,7 +11,7 @@ NO_FACE = 0;
 FACE_DETECTED = 1;
 
 % Configuration
-REFRESH_PERIOD  = 20;
+REFRESH_PERIOD  = 2;
 RESPIRATION_RATE_WINDOW = 30;
 HEARTBEAT_WINDOW = 6;
 BLOOD_PRESSURE_WINDOW = 20;
@@ -232,4 +232,8 @@ end
 % fprintf('state = %d next_state = %d res.state = %d,\n',...
 %         state, next_state, results.state);
 % fprintf('%d\n', bufferFace.first_empty);
+% subplot(2,1,1);
+% imshow(input);
+% subplot(2,1,2);
+% imshow(hand);
 state = next_state;

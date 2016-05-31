@@ -58,7 +58,7 @@ hummingChannel = filter(bandPassFilter, 1, smoothedSignal);
 plot(timeStamps, hummingChannel, 'r');
 
 % Spline cubic function data interpolation
-desiredSampling = 32;
+desiredSampling = 256;
 [resampledData, TResampledData] = resample(hummingChannel, timeStamps, desiredSampling, 3, 1, 'spline');
 
 % Lomb periodogram PSD
